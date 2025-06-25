@@ -41,7 +41,7 @@ export default () => {
 
         let responseContent = await buildContent(response, [])
 
-        setMessages(prev => [...prev, { content: response, role: "assistant" }])
+        setMessages(prev => [...prev, { content: responseContent, role: "assistant" }])
         setLoading(false)
         setValue("")
     }
