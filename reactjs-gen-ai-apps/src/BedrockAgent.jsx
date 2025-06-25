@@ -24,6 +24,7 @@ export default () => {
     const [loading, setLoading] = useState(false)
     const [sessionId, setSessionId] = useState(createId())
     const [messages, setMessages] = useState([])
+    const [enableTrace] = useState(true)
 
 
     const childRef = useRef(null);
@@ -38,7 +39,7 @@ export default () => {
         setValue("")
         setMessages(prev => [...prev, { content: content, role: "user" }])
         // may need to remove enableTrace
-        const response  = await invokeBedrockAgent(sessionId, enableTrace=true, currentAgent.value.agentId, currentAgent.value.alias.agentAliasId, value)
+        const response  = await invokeBedrockAgent(sessionId, enableTrace, currentAgent.value.agentId, currentAgent.value.alias.agentAliasId, value)
 
         let responseContent = await buildContent(response, [])
 
