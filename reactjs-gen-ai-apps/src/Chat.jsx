@@ -52,7 +52,7 @@ export default ({ llm }) => {
     return (
 
         <Container
-            header={<Header variant="h2">Conversacion</Header>}>
+            header={<Header variant="h2">Conversation</Header>}>
             <Box  data-id="chat-window">
                 {
                     chat.length ?
@@ -68,7 +68,7 @@ export default ({ llm }) => {
             <SpaceBetween size="xs">
                 {
                     llmResponse !== "" ?
-                        <Container fitHeight header={<strong>Respuesta LLM</strong>}>
+                        <Container fitHeight header={<strong>CDR Agent Response</strong>}>
                             <div dangerouslySetInnerHTML={{ __html: llmResponse }} />
                         </Container> :
                         null
@@ -81,7 +81,7 @@ export default ({ llm }) => {
                     value={value}
                     disabled={loading}
                     inputMode="text" />
-                <Button fullWidth key={2} loading={loading} onClick={sendText} variant="primary" >Enviar</Button>
+                <Button fullWidth key={2} loading={loading} onClick={sendText} variant="primary" >Send</Button>
             </SpaceBetween>
 
 
