@@ -37,11 +37,11 @@ export default () => {
         let content = await buildContent(value, [])
         setValue("")
         setMessages(prev => [...prev, { content: content, role: "user" }])
-        const response  = await invokeBedrockAgent(sessionId, currentAgent.value.agentId, currentAgent.value.alias.agentAliasId, value)
+        const response  = await invokeBedrockAgent(sessionId, enableTrace=True, currentAgent.value.agentId, currentAgent.value.alias.agentAliasId, value)
 
         let responseContent = await buildContent(response, [])
 
-        setMessages(prev => [...prev, { content: responseContent, role: "assistant" }])
+        setMessages(prev => [...prev, { content: response, role: "assistant" }])
         setLoading(false)
         setValue("")
     }
