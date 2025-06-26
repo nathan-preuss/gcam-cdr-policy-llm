@@ -157,20 +157,32 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
     console.log("response:", response)
 
     let completion = ""
-
-    /*     for await (const chunk of stream) {
-            console.log(chunk)
-        } */
+    let references = ""
 
     let decoder = new TextDecoder("utf-8")
     for await (const chunk of response.completion) {
         console.log("chunk:", chunk)
         const text = decoder.decode(chunk.chunk.bytes)
+        const refs = chunk.chunk.attribution
+        console.log("refs:", refs)
+
+        refs.forEach(function(element) {
+            console.log("element:", element)
+            element.retrievedReferences.forEach(function(attr) { 
+                console.log("citation:", element)
+                references+=attr.content.text
+                references+= "\n"
+                references+= attr.metadata
+            });
+        });
+
         completion += text
+        references += refs
         console.log(text)
+        console.log(refs)
     }
 
-    return completion
+    return completion + "\n\n\n**References**" + references 
 
 }
 
