@@ -163,27 +163,26 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
     for await (const chunk of response.completion) {
         console.log("chunk:", chunk)
         const text = decoder.decode(chunk.chunk.bytes)
-        const refs = chunk.chunk.attribution
+        const refs = chunk.chunk.attribution.citations
         console.log("refs:", refs)
 
         refs.forEach(function(element) {
             console.log("element:", element)
+            references+= "\n\n\n"
             element.retrievedReferences.forEach(function(attr) { 
                 console.log("citation:", element)
                 references+=attr.content.text
                 references+= "\n"
                 references+= attr.metadata
+                references+= "\n"
             });
         });
 
         completion += text
-        references += refs
         console.log(text)
-        console.log(refs)
     }
 
-    return completion + "\n\n\n**References**" + references 
-
+    return completion + "\n\n\n**References**\n" + references 
 }
 
 
