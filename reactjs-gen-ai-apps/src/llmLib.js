@@ -173,8 +173,8 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 console.log("citation:", attr)
                 references+=attr.content.text
                 references+= "\n\n"
-                references+= "page number: " + String(attr.metadata.x-amz-bedrock-kb-document-page-number) + "\n"
-                references+= "document: " + attr.metadata.x-amz-bedrock-kb-source-uri
+                references+= "page number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n"
+                references+= "document: " + attr.metadata["x-amz-bedrock-kb-source-uri"]
                 references+= "\n\n\n"
             });
         });
