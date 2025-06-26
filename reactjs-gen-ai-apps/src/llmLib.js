@@ -166,16 +166,30 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         const refs = chunk.chunk.attribution.citations
         console.log("refs:", refs)
 
+        let counter = 1
+        let seen_citations = {}
+
         refs.forEach(function(element) {
             console.log("element:", element)
             references+= "\n\n\n\n"
             element.retrievedReferences.forEach(function(attr) { 
                 console.log("citation:", attr)
-                references+=attr.content.text
-                references+= "\n\n"
-                references+= "page number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n"
-                references+= "document: " + attr.metadata["x-amz-bedrock-kb-source-uri"]
-                references+= "\n\n\n"
+
+                // check if citation has been seen before
+                const valuetoFind = attr.content.text
+                const valuesArray = Object.values(myObject)
+                const valueExists = valuesArray.includes(valueToFind)
+
+                // if the citation is new, add it to object and update references
+                if(!valueExists) {
+                    seen_citations[String(counter)] = attr.content.text
+                    references+= "Source: " + String(counter) + "\n"
+                    references+= "page number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n"
+                    references+= "document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n"
+                    references+= attr.content.text
+                    references+= "\n\n\n"
+                    counter += 1
+                }
             });
         });
 
