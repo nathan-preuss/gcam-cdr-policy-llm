@@ -177,7 +177,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
 
                 // check if citation has been seen before
                 const valuetoFind = attr.content.text
-                const valuesArray = Object.values(myObject)
+                const valuesArray = Object.values(seen_citations)
                 const valueExists = valuesArray.includes(valueToFind)
 
                 // if the citation is new, add it to object and update references
