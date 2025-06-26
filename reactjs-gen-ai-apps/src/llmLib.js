@@ -168,13 +168,14 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
 
         refs.forEach(function(element) {
             console.log("element:", element)
-            references+= "\n\n\n"
+            references+= "\n\n\n\n"
             element.retrievedReferences.forEach(function(attr) { 
-                console.log("citation:", element)
+                console.log("citation:", attr)
                 references+=attr.content.text
-                references+= "\n"
-                references+= attr.metadata
-                references+= "\n"
+                references+= "\n\n"
+                references+= "page number: " + String(attr.metadata.x-amz-bedrock-kb-document-page-number) + "\n"
+                references+= "document: " + attr.metadata.x-amz-bedrock-kb-source-uri
+                references+= "\n\n\n"
             });
         });
 
