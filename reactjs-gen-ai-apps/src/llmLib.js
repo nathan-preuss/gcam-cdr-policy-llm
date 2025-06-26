@@ -183,9 +183,9 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 // if the citation is new, add it to object and update references
                 if(!valueExists) {
                     seen_citations[String(counter)] = valuetoFind
-                    references+= "Source: " + String(counter) + "\n"
-                    references+= "page number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n"
-                    references+= "document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n"
+                    references+= "*Source: *" + String(counter) + "\n\n"
+                    references+= "*Page Number: *" + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
+                    references+= "*Document: " *+ attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
                     references+= valuetoFind
                     references+= "\n\n\n"
                     counter += 1
