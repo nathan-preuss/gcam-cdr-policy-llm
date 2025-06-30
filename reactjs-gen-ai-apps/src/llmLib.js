@@ -221,9 +221,10 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         }
         completion += text
         console.log(text)
+        if (response.completion.options.messageStream.options.decoder.isEndOfStream)  {
+            return completion + "\n\n\n**References:**\n" + references 
+        }  
     }
-        
-    return completion + "\n\n\n**References:**\n" + references 
 }
 
 
