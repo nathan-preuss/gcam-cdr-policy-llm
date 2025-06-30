@@ -177,8 +177,6 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
             const citeLocation = element.generatedResponsePart.textResponsePart.text
             const citeInsert = text.split(citeLocation)
             const citeNumbers = []
-            console.log("citeLocation:", citeLocation)
-            console.log("citeInsert: ", citeInsert)
 
             // for each reference in the list
             element.retrievedReferences.forEach(function(attr) { 
@@ -213,7 +211,6 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
 
             // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
             text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
-            console.log("recombined text: ", text)
             });
         });
 
@@ -221,7 +218,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         console.log(text)
     }
 
-    return completion + "\n\n\n**References**\n" + references 
+    return completion + "\n\n\n**References:**\n" + references 
 }
 
 
