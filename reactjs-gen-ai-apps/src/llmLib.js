@@ -162,62 +162,67 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
     let decoder = new TextDecoder("utf-8")
     for await (const chunk of response.completion) {
         console.log("chunk:", chunk)
-        var text = decoder.decode(chunk.chunk.bytes)
-        const refs = chunk.chunk.attribution.citations
-        console.log("refs:", refs)
 
-        let counter = 1
-        let seen_citations = {}
+        // ensure that previous data is available to this current process
+        var text = completion + decoder.decode(chunk.chunk.bytes)
 
-        refs.forEach(function(element) {
-            console.log("element:", element)
-            references+= "\n\n\n\n"
+        // there are some chunks that don't have attributions
+        if ("attribution" in chunk.chunk) {
+            const refs = chunk.chunk.attribution.citations
+            console.log("refs:", refs)
 
-             // find where the reference should be cited in the main text
-            const citeLocation = element.generatedResponsePart.textResponsePart.text
-            const citeInsert = text.split(citeLocation)
-            const citeNumbers = []
+            let counter = 1
+            let seen_citations = {}
 
-            // for each reference in the list
-            element.retrievedReferences.forEach(function(attr) { 
-                console.log("citation:", attr)
+            refs.forEach(function(element) {
+                console.log("element:", element)
+                references+= "\n\n\n\n"
 
-                // check if citation has been seen before
-                const valuetoFind = attr.content.text
-                const valuesArray = Object.values(seen_citations)
-                const valueExists = valuesArray.includes(valuetoFind)
+                // find where the reference should be cited in the main text
+                const citeLocation = element.generatedResponsePart.textResponsePart.text
+                const citeInsert = text.split(citeLocation)
+                const citeNumbers = []
 
-                // if the citation is new, add it to object and update references
-                if(!valueExists) {
-                    // add citation number to array
-                    citeNumbers.push(counter)
-                    console.log("cite numbers: ", citeNumbers)
+                // for each reference in the list
+                element.retrievedReferences.forEach(function(attr) { 
+                    console.log("citation:", attr)
 
-                    // update references
-                    seen_citations[String(counter)] = valuetoFind
-                    references+= "Source: " + String(counter) + "\n\n"
-                    references+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
-                    references+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
-                    references+= valuetoFind
-                    references+= "\n\n\n\n\n\n"
-                    counter += 1
-                    console.log("reference added successfully")
-                }else {
-                    // if the citation is not new, find the appropriate number
-                    const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
-                    citeNumbers.push(citationNumber)
-                    console.log("citeNumbers (with old citation): ", citeNumbers)
-                }
+                    // check if citation has been seen before
+                    const valuetoFind = attr.content.text
+                    const valuesArray = Object.values(seen_citations)
+                    const valueExists = valuesArray.includes(valuetoFind)
 
-            // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
-            text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+                    // if the citation is new, add it to object and update references
+                    if(!valueExists) {
+                        // add citation number to array
+                        citeNumbers.push(counter)
+                        console.log("cite numbers: ", citeNumbers)
+
+                        // update references
+                        seen_citations[String(counter)] = valuetoFind
+                        references+= "Source: " + String(counter) + "\n\n"
+                        references+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
+                        references+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
+                        references+= valuetoFind
+                        references+= "\n\n\n\n\n\n"
+                        counter += 1
+                        console.log("reference added successfully")
+                    }else {
+                        // if the citation is not new, find the appropriate number
+                        const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
+                        citeNumbers.push(citationNumber)
+                        console.log("citeNumbers (with old citation): ", citeNumbers)
+                    }
+
+                // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
+                text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+                });
             });
-        });
-
+        }
         completion += text
         console.log(text)
     }
-
+        
     return completion + "\n\n\n**References:**\n" + references 
 }
 
