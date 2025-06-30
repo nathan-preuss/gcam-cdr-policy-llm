@@ -169,66 +169,71 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         console.log("chunk:", chunk)
 
         // ensure that previous data is available to this current process
-        var text = completion + decoder.decode(chunk.chunk.bytes)
+        if ("chunk" in chunk){ 
+            var text = completion + decoder.decode(chunk.chunk.bytes)
 
-        // there are some chunks that don't have attributions
-        if ("attribution" in chunk.chunk) {
-            const refs = chunk.chunk.attribution.citations
-            console.log("refs:", refs)
+            // there are some chunks that don't have attributions
+            if ("attribution" in chunk.chunk) {
+                const refs = chunk.chunk.attribution.citations
+                console.log("refs:", refs)
 
-            let counter = 1
-            let seen_citations = {}
+                let counter = 1
+                let seen_citations = {}
 
-            refs.forEach(function(element) {
-                console.log("element:", element)
-                references+= "\n\n\n\n"
+                refs.forEach(function(element) {
+                    console.log("element:", element)
+                    references+= "\n\n\n\n"
 
-                // find where the reference should be cited in the main text
-                const citeLocation = element.generatedResponsePart.textResponsePart.text
-                const citeInsert = text.split(citeLocation)
-                const citeNumbers = []
+                    // find where the reference should be cited in the main text
+                    const citeLocation = element.generatedResponsePart.textResponsePart.text
+                    const citeInsert = text.split(citeLocation)
+                    const citeNumbers = []
 
-                // for each reference in the list
-                element.retrievedReferences.forEach(function(attr) { 
-                    console.log("citation:", attr)
+                    // for each reference in the list
+                    element.retrievedReferences.forEach(function(attr) { 
+                        console.log("citation:", attr)
 
-                    // check if citation has been seen before
-                    const valuetoFind = attr.content.text
-                    const valuesArray = Object.values(seen_citations)
-                    const valueExists = valuesArray.includes(valuetoFind)
+                        // check if citation has been seen before
+                        const valuetoFind = attr.content.text
+                        const valuesArray = Object.values(seen_citations)
+                        const valueExists = valuesArray.includes(valuetoFind)
 
-                    // if the citation is new, add it to object and update references
-                    if(!valueExists) {
-                        // add citation number to array
-                        citeNumbers.push(String(counter))
-                        console.log("cite numbers: ", citeNumbers)
+                        // if the citation is new, add it to object and update references
+                        if(!valueExists) {
+                            // add citation number to array
+                            citeNumbers.push(String(counter))
+                            console.log("cite numbers: ", citeNumbers)
 
-                        // update references
-                        seen_citations[String(counter)] = valuetoFind
-                        references+= "Source: " + String(counter) + "\n\n"
-                        references+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
-                        references+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
-                        references+= valuetoFind
-                        references+= "\n\n\n\n\n\n"
-                        counter += 1
-                        console.log("reference added successfully")
-                    }else {
-                        // if the citation is not new, find the appropriate number
-                        const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
-                        citeNumbers.push(citationNumber)
-                        console.log("citeNumbers (with old citation): ", citeNumbers)
-                    }
+                            // update references
+                            seen_citations[String(counter)] = valuetoFind
+                            references+= "Source: " + String(counter) + "\n\n"
+                            references+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
+                            references+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
+                            references+= valuetoFind
+                            references+= "\n\n\n\n\n\n"
+                            counter += 1
+                            console.log("reference added successfully")
+                        }else {
+                            // if the citation is not new, find the appropriate number
+                            const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
+                            citeNumbers.push(citationNumber)
+                            console.log("citeNumbers (with old citation): ", citeNumbers)
+                        }
 
-                // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
-                text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+                    // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
+                    text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+                    });
                 });
-            });
-        }
+            }
 
-        // if we just have text, add the text to the completed message
-        completion += text
-        console.log(text)
-    } 
+            // if we just have text, add the text to the completed message
+            completion += text
+            console.log(text)
+        } else 
+        {
+            completion += "Completing trace... \n\n\n"
+        }
+    }
     // return the completed message
     if (references = "") {
         return completion + "\n\n\n**No sources given**\n"
