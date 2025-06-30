@@ -148,7 +148,17 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         agentId: agentId,
         agentAliasId: agentAlias,
         inputText: query,
-        enableTrace: true
+        enableTrace: true,
+        // added knowledge base configuration to return up to 25 results
+        knowledgeBaseConfigurations: [ 
+         { 
+            retrievalConfiguration: { 
+               vectorSearchConfiguration: { 
+                  numberOfResults: 25,
+               }
+            }
+         }
+      ]
     }
 
     console.log(input)
@@ -227,6 +237,9 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
             completion += text
             console.log(text)
         } // else it is a trace chunk
+        // TODO: get knowledge base lookup chunks from trace and append to the final response. This can be across multiple prompts. Extract references method as helper function.
+        // TODO: check knowledge base settings on the number of sources returned - consider increasing to 25.
+        // Test prompt: What are some good DACs policies? Please include 10+ relevant sources using a real-time knowledge base query.
     }
     // return the completed message
     return completion + "\n\n\n**References:**\n" + references 
