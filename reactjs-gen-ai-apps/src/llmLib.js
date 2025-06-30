@@ -162,7 +162,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
     let decoder = new TextDecoder("utf-8")
     for await (const chunk of response.completion) {
         console.log("chunk:", chunk)
-        const text = decoder.decode(chunk.chunk.bytes)
+        var text = decoder.decode(chunk.chunk.bytes)
         const refs = chunk.chunk.attribution.citations
         console.log("refs:", refs)
 
@@ -172,6 +172,15 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         refs.forEach(function(element) {
             console.log("element:", element)
             references+= "\n\n\n\n"
+
+             // find where the reference should be cited in the main text
+            const citeLocation = element.generatedResponsePart.textResponsePart.text
+            const citeInsert = text.split(citeLocation)
+            const citeNumbers = []
+            console.log("citeLocation:", citeLocation)
+            console.log("citeInsert: ", citeInsert)
+
+            // for each reference in the list
             element.retrievedReferences.forEach(function(attr) { 
                 console.log("citation:", attr)
 
@@ -179,13 +188,6 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 const valuetoFind = attr.content.text
                 const valuesArray = Object.values(seen_citations)
                 const valueExists = valuesArray.includes(valuetoFind)
-
-                // find where the reference should be cited in the main text
-                const citeLocation = element.generatedResponsePart.textResponsePart.text
-                const citeInsert = text.split(citeLocation)
-                const citeNumbers = []
-                console.log("citeLocation:", citeLocation)
-                console.log("citeInsert: ", citeInsert)
 
                 // if the citation is new, add it to object and update references
                 if(!valueExists) {
@@ -201,6 +203,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                     references+= valuetoFind
                     references+= "\n\n\n\n\n\n"
                     counter += 1
+                    console.log("reference added successfully")
                 }else {
                     // if the citation is not new, find the appropriate number
                     const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
@@ -208,9 +211,9 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                     console.log("citeNumbers (with old citation): ", citeNumbers)
                 }
 
-                // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
-                text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
-                console.log("recombined text: ", text)
+            // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
+            text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+            console.log("recombined text: ", text)
             });
         });
 
