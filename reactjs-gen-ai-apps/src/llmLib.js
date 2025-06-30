@@ -148,10 +148,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         agentId: agentId,
         agentAliasId: agentAlias,
         inputText: query,
-        enableTrace: true,
-        streamingConfigurations: { 
-            "streamFinalResponse" : true
-        }
+        enableTrace: true
     }
 
     console.log(input)
