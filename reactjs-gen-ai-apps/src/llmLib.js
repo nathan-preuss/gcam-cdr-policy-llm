@@ -180,8 +180,20 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 const valuesArray = Object.values(seen_citations)
                 const valueExists = valuesArray.includes(valuetoFind)
 
+                // find where the reference should be cited in the main text
+                const citeLocation = element.generatedResponsePart.textResponsePart.text
+                const citeInsert = text.split(citeLocation)
+                const citeNumbers = []
+                console.log("citeLocation:", citeLocation)
+                console.log("citeInsert: ", citeInsert)
+
                 // if the citation is new, add it to object and update references
                 if(!valueExists) {
+                    // add citation number to array
+                    citeNumbers.push(counter)
+                    console.log("cite numbers: ", citeNumbers)
+
+                    // update references
                     seen_citations[String(counter)] = valuetoFind
                     references+= "Source: " + String(counter) + "\n\n"
                     references+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
@@ -189,7 +201,16 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                     references+= valuetoFind
                     references+= "\n\n\n\n\n\n"
                     counter += 1
+                }else {
+                    // if the citation is not new, find the appropriate number
+                    const citationNumber = Object.keys(seen_citations).find(key => seen_citations[key] === valuetoFind)
+                    citeNumbers.push(citationNumber)
+                    console.log("citeNumbers (with old citation): ", citeNumbers)
                 }
+
+                // recombine main text of before substring part, substring, sources, source numbers, and remainder of main text
+                text = citeInsert[0] + citeLocation + " Sources: " + citeNumbers.join(", ") + citeInsert[1]
+                console.log("recombined text: ", text)
             });
         });
 
