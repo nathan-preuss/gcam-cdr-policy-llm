@@ -226,17 +226,10 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
             // if we just have text, add the text to the completed message
             completion += text
             console.log(text)
-        } else 
-        {
-            completion += "Completing trace... \n\n\n"
-        }
+        } // else it is a trace chunk
     }
     // return the completed message
-    if (references = "") {
-        return completion + "\n\n\n**No sources given**\n"
-    } else {
-        return completion + "\n\n\n**References:**\n" + references 
-    }
+    return completion + "\n\n\n**References:**\n" + references 
 }
 
 
