@@ -151,18 +151,16 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         enableTrace: true,
         //TODO: change inference configuration to a length bigger than 1024 in some settings somewhere
         // added knowledge base configuration to return up to 1 results
-        knowledgeBaseConfigurations: [ 
-         { 
+        knowledgeBaseConfigurations:{ 
             retrievalConfiguration: { 
-               vectorSearchConfiguration: { 
-                  numberOfResults: 1,
-               }
+                vectorSearchConfiguration: { 
+                    numberOfResults: 1
+                }
             }
-         }
-      ]
+        }
     }
 
-    console.log(input)
+    console.log("input: ", input)
 
     const command = new InvokeAgentCommand(input)
     const response = await client.send(command,)
