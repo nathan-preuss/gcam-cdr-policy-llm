@@ -195,7 +195,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                     // if the citation is new, add it to object and update references
                     if(!valueExists) {
                         // add citation number to array
-                        citeNumbers.push(counter)
+                        citeNumbers.push(String(counter))
                         console.log("cite numbers: ", citeNumbers)
 
                         // update references
@@ -219,12 +219,13 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 });
             });
         }
+
+        // if we just have text, add the text to the completed message
         completion += text
         console.log(text)
-        if (response.completion.options.messageStream.options.decoder.isEndOfStream)  {
-            return completion + "\n\n\n**References:**\n" + references 
-        }  
-    }
+    } 
+    // return the completed message
+    return completion + "\n\n\n**References:**\n" + references 
 }
 
 
