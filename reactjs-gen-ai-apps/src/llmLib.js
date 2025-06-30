@@ -147,7 +147,11 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         sessionId: sessionId,
         agentId: agentId,
         agentAliasId: agentAlias,
-        inputText: query
+        inputText: query,
+        enableTrace: true,
+        streamingConfigurations: { 
+            "streamFinalResponse" : true
+        }
     }
 
     console.log(input)
@@ -160,6 +164,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
     let references = ""
 
     let decoder = new TextDecoder("utf-8")
+    // we know that a response only has 1 chunk: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_InvokeAgent.html
     for await (const chunk of response.completion) {
         console.log("chunk:", chunk)
 
@@ -225,7 +230,11 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         console.log(text)
     } 
     // return the completed message
-    return completion + "\n\n\n**References:**\n" + references 
+    if (references = "") {
+        return completion + "\n\n\n**No sources given**\n"
+    } else {
+        return completion + "\n\n\n**References:**\n" + references 
+    }
 }
 
 
