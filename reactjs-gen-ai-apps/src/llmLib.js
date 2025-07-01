@@ -151,14 +151,16 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         enableTrace: true,
         //TODO: change inference configuration to a length bigger than 1024 in some settings somewhere
         // added knowledge base configuration to return up to 1 results
-        knowledgeBaseConfigurations:[{ 
-            retrievalConfiguration: { 
-                vectorSearchConfiguration: { 
-                    numberOfResults: 1,
-                    hopeThisCausesError: 2 //apparently this doesn't work. Le sigh
+        sessionState: {
+            knowledgeBaseConfigurations:[{ 
+                retrievalConfiguration: { 
+                    vectorSearchConfiguration: { 
+                        numberOfResults: 1,
+                        hopeThisCausesError: 2 //apparently this doesn't work. Le sigh
+                    }
                 }
-            }
-        }]
+            }]
+        }
     }
 
     console.log("input: ", input)
@@ -244,7 +246,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                     if ("observation" in chunk.trace.trace.orchestrationTrace){
                         if ("knowledgeBaseLookupOutput" in chunk.trace.trace.orchestrationTrace.observation){
                             // show outputs of knowledge base query
-                            chunk.trace.trace.orchestrationTrace.observation.retrievedReferences.forEach(function(attr) {
+                            chunk.trace.trace.orchestrationTrace.observation.knowledgeBaseLookupOutput.retrievedReferences.forEach(function(attr) {
                                 console.log("kb lookup:", attr)
                                 kb+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
                                 kb+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
