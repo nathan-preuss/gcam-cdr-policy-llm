@@ -153,10 +153,10 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         // added knowledge base configuration to return up to 1 results
         sessionState: {
             knowledgeBaseConfigurations:[{ 
+                knowledgeBaseId: "4GPIBKMXWO",
                 retrievalConfiguration: { 
                     vectorSearchConfiguration: { 
-                        numberOfResults: 1,
-                        hopeThisCausesError: 2 //apparently this doesn't work. Le sigh
+                        numberOfResults: 1
                     }
                 }
             }]
