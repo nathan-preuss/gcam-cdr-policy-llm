@@ -250,7 +250,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                                 console.log("kb lookup:", attr)
                                 kb+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
                                 kb+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
-                                kb+= "Text:" +attr.content.text + "\n\n"
+                                kb+= "Text: " +attr.content.text + "\n\n\n---"
                                 kb+= "\n\n\n\n"
                             });
                         }
@@ -261,7 +261,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         // Test prompt: What are some good DACs policies? Please include 10+ relevant sources using a real-time knowledge base query.
     }
     // return the completed message
-    return completion + "\n\n\n---End LLM Response---\n\n\n**References:**\n" + references + "\n\n\n**Knowledge Base Query Results:**\n" + kb 
+    return completion + "\n\n\n---End LLM Response---\n\n\n**References:**\n" + references + "\n\n\n**Knowledge Base Query Results:**\n\n\n" + kb 
 }
 
 
