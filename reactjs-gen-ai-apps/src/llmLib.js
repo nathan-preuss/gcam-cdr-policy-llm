@@ -156,7 +156,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
                 knowledgeBaseId: "4GPIBKMXWO",
                 retrievalConfiguration: { 
                     vectorSearchConfiguration: { 
-                        numberOfResults: 1
+                        numberOfResults: 20
                     }
                 }
             }]
@@ -261,7 +261,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         // Test prompt: What are some good DACs policies? Please include 10+ relevant sources using a real-time knowledge base query.
     }
     // return the completed message
-    return completion + "\n\n\n**References:**\n" + references + "\n\n\n**Knowledge Base Query Results:**\n" + kb 
+    return completion + "\n\n\n---End LLM Response---\n\n\n**References:**\n" + references + "\n\n\n**Knowledge Base Query Results:**\n" + kb 
 }
 
 
