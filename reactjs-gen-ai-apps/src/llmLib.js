@@ -151,13 +151,14 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
         enableTrace: true,
         //TODO: change inference configuration to a length bigger than 1024 in some settings somewhere
         // added knowledge base configuration to return up to 1 results
-        knowledgeBaseConfigurations:{ 
+        knowledgeBaseConfigurations:[{ 
             retrievalConfiguration: { 
                 vectorSearchConfiguration: { 
-                    numberOfResults: 1
+                    numberOfResults: 1,
+                    hopeThisCausesError: 2 //apparently this doesn't work. Le sigh
                 }
             }
-        }
+        }]
     }
 
     console.log("input: ", input)
@@ -168,6 +169,7 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
 
     let completion = ""
     let references = ""
+    let kb = ""
 
     let decoder = new TextDecoder("utf-8")
     // we know that a response only has 1 chunk: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_InvokeAgent.html
@@ -236,12 +238,28 @@ export const invokeBedrockAgent = async (sessionId, agentId, agentAlias, query) 
             completion += text
             console.log(text)
         } // else it is a trace chunk
-        // TODO: get knowledge base lookup chunks from trace and append to the final response. This can be across multiple prompts. Extract references method as helper function.
-        // TODO: check knowledge base settings on the number of sources returned - consider increasing to 25.
+        if ("trace" in chunk){
+            if ("trace" in chunk.trace){
+                if ("orchestrationTrace" in chunk.trace.trace){
+                    if ("observation" in chunk.trace.trace.orchestrationTrace){
+                        if ("knowledgeBaseLookupOutput" in chunk.trace.trace.orchestrationTrace.observation){
+                            // show outputs of knowledge base query
+                            chunk.trace.trace.orchestrationTrace.observation.retrievedReferences.forEach(function(attr) {
+                                console.log("kb lookup:", attr)
+                                kb+= "Document: " + attr.metadata["x-amz-bedrock-kb-source-uri"] + "\n\n"
+                                kb+= "Page Number: " + String(attr.metadata["x-amz-bedrock-kb-document-page-number"]) + "\n\n"
+                                kb+= "Text:" +attr.content.text + "\n\n"
+                                kb+= "\n\n\n\n"
+                            });
+                        }
+                    }
+                }
+            }
+        }
         // Test prompt: What are some good DACs policies? Please include 10+ relevant sources using a real-time knowledge base query.
     }
     // return the completed message
-    return completion + "\n\n\n**References:**\n" + references 
+    return completion + "\n\n\n**References:**\n" + references + "\n\n\n**Knowledge Base Query Results:**\n" + kb 
 }
 
 
